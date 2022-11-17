@@ -41,7 +41,6 @@ function choroplethMap(countyData, educationData) {
     "rgb(55, 107, 175)",
     "rgb(31, 89, 165)",
     "rgb(12, 65, 134)",
-    "rgb(5, 43, 94)",
   ];
 
   //Draw the canvas
@@ -51,6 +50,13 @@ function choroplethMap(countyData, educationData) {
     .attr("class", "choroplethMap")
     .attr("width", width)
     .attr("height", height);
+
+  //Add a tooltip
+  const tooltip = d3
+    .select("body")
+    .append("div")
+    .attr("id", "tooltip")
+    .style("visibility", "hidden");
 
   //Add the counties
   svg
@@ -67,29 +73,55 @@ function choroplethMap(countyData, educationData) {
     )
     .attr("fill", (data, index) => {
       let county = educationData.find((d) => d.fips === data.id);
-      if (county.bachelorsOrHigher < 3) {
+      if (county.bachelorsOrHigher < 12) {
         return colors[0];
-      } else if (county.bachelorsOrHigher < 12) {
-        return colors[1];
       } else if (county.bachelorsOrHigher < 21) {
-        return colors[2];
+        return colors[1];
       } else if (county.bachelorsOrHigher < 30) {
-        return colors[3];
+        return colors[2];
       } else if (county.bachelorsOrHigher < 39) {
-        return colors[4];
+        return colors[3];
       } else if (county.bachelorsOrHigher < 48) {
-        return colors[5];
+        return colors[4];
       } else if (county.bachelorsOrHigher < 57) {
+        return colors[5];
+      } else {
         return colors[6];
-      } else if (county.bachelorsOrHigher < 66) {
-        return colors[7];
       }
+    })
+    .on("mouseover", (e) => {
+      let id = e.target["__data__"]["id"];
+      let county = educationData.find((d) => d.fips === id);
+      tooltip.html(
+        `<p>${county.area_name + ", " + county.state}: ${
+          county.bachelorsOrHigher
+        }%</p>`
+      );
+      tooltip.style("visibility", "visible");
+      tooltip.style("top", e.y + "px");
+      tooltip.style("left", e.x + "px");
+      tooltip.attr("data-education", county.bachelorsOrHigher);
+    })
+    .on("mouseout", (e) => {
+      tooltip.html("");
+      tooltip.style("visibility", "hidden");
+      tooltip.attr("data-education", "");
     });
 
   //Add a legend
+  const legendScale = d3.scaleLinear();
+  legendScale.domain([3, 66]);
+  legendScale.range([padding, padding + 40 * colors.length]);
+
+  const legendAxis = d3.axisBottom(legendScale);
+  legendAxis.ticks(9);
+  legendAxis.tickValues([3, 12, 21, 30, 39, 48, 57, 66]);
+
   d3.select("body")
     .append("svg")
     .attr("id", "legend")
+    .attr("width", padding * 2 + colors.length * 40)
+    .attr("height", 60)
     .selectAll("rect")
     .data(colors)
     .enter()
@@ -99,4 +131,9 @@ function choroplethMap(countyData, educationData) {
     .attr("x", (color, index) => padding + 40 * index)
     .attr("y", padding)
     .attr("fill", (color, index) => colors[index]);
+
+  d3.select("#legend")
+    .append("g")
+    .call(legendAxis)
+    .attr("transform", "translate(0," + 30 + ")");
 }
