@@ -7,3 +7,16 @@ body {
   background-color: rgb(38, 38, 43);
   color: wheat;
 }
+
+#tooltip {
+  font-size: 1rem;
+  width: max-content;
+  height: auto;
+  background-color: rgba(87, 151, 224, 0.753);
+  position: absolute;
+  box-shadow: 0 0 20px black;
+  border-radius: 10px;
+  visibility: "";
+  padding: 0.25rem 1rem;
+  top: 10px;
+}
