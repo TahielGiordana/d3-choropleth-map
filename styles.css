@@ -4,4 +4,6 @@ body {
   justify-content: center;
   align-items: center;
   font-family: Poppins, sans-serif;
+  background-color: rgb(38, 38, 43);
+  color: wheat;
 }
